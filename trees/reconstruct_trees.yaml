@@ -1,0 +1,50 @@
+question:
+  - https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/
+  - https://leetcode.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal/
+
+solution_thoughts:
+  - preorder is root->left->right
+  - inorder is left->root->right
+  - postorder is left->right->root
+  - use preorder/postorder to create nodes and use inorder to provide direction of left and right
+
+pseudo_code1:
+  - preorder , inorder to tree
+  - populate a map of element->index from the inorder traversal
+  - have a global pre order index
+  - recursive function accepts two parameters left and right which are boundaries of what nodes
+  can be considered as part of left and right subtrees for the root
+  - create node out of current pre order index
+  - assign its left to recursive call of (left, imap(root.val)-1)
+  - assign its right to recursive call of (imap(root.val)+1, right)
+  - base case ==> if right < left then return None
+  - code:
+        def preorder_inorder_to_tree(preorder, inorder):
+            imap = {x:i for i,x in enumerate(inorder)}
+            def recurse(left, right):
+              if left > right: return None
+
+              val = preorder.pop(0)
+              node = TreeNode(val)
+              
+              node.left = recurse(left, imap[val]-1)
+              node.right = recurse(imap[val]+1, right)
+              return node
+            return recurse(0, len(inorder)-1)
+pseudo_code2:
+  - postorder, inorder to tree
+  - populate a map and do everything similar as above but with two key differences
+  - since postorder keeps root as the last visited node, we start from the last index of the post order
+  - since postorder is recursively left->right->root, we need to do root->right->left in our recursion call
+  - code:
+        def postorder_inorder_to_tree(post_order, inorder):
+            imap = {x:i for i,x in enumerate(inorder)}
+            def recurse(left, right):
+                if left > right: return None
+                val = post_order.pop()
+                node = TreeNode(val)
+                
+                node.right = recurse(imap[val]+1, right)
+                node.left = recurse(left, imap[val]-1)
+                return node
+            return recurse(0, len(inorder)-1)
